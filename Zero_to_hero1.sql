@@ -150,3 +150,55 @@ having count(leave_id) >1;
 /* ======================= */
 /*  End of File             */
 /* ======================= */
+
+
+--6. Find the average salary of employees by department and display the department with and average salary greater than $85,000
+
+
+select department,avg(salary)
+--row_number () over (partition by department)
+from employees
+group by department
+having avg(salary) >85000;
+
+---7.  For each project, find the employee who worked on it with the highest allocation percentage.
+select * from employees;
+select * from projects;
+select * from employee_project
+
+
+with cte as
+(select e.emp_name,ep.project_id,p.project_name,ep.allocation_percentage
+,row_number() over (partition by p.project_id order by ep.allocation_percentage desc) 
+from employees e
+join employee_project ep
+on e.emp_id = ep.emp_id 
+join projects p
+on ep.project_id = p.project_id) 
+select * from cte
+where row_number =1 ;
+
+---8. Find the employees who have been working  in the company for more than 3 years and not managers
+
+
+select * from employees
+where hire_date <= CURRENT_DATE - INTERVAL '3 Years'
+and designation not in ('Manager');
+
+
+---9. Get a list of projects that have not started yet (Start date is in future).
+
+select * from projects
+where start_date > current_date;
+
+---10. Find the total number of leaves taken by each employee. Show only employees who have taken more than 3 days of leave
+
+select * from leaves;
+
+select e.emp_name,e.emp_id
+,sum(cast(l.end_date-l.start_date as integer )+1)
+from leaves l
+join employees e
+on e.emp_id = l.emp_id
+group by e.emp_name,e.emp_id
+having sum(cast(l.end_date-l.start_date as integer )+1) >3;
